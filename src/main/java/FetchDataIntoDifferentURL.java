@@ -22,14 +22,15 @@ public class FetchDataIntoDifferentURL {
     public String movieDownload;  //电影下载链接
 
     public void FetchDataIntoDifferentURL(List list) {
-        try {
             for (int i = 0; i < list.size(); i++) {
+                try {
 //            Object object = list.get(i);
 //            String movieURL = object.toString();
                 //userAgent一定要配置,不然网站可能会认为你是爬虫或者什么不能访问
                 Document document = Jsoup.connect(list.get(i).toString())
 //                Document document = Jsoup.connect("http://www.tiantangbbs.com/thread-278909-1-1.html")  //用作测试
                         .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36")
+                        .timeout(10000)
                         .get();
                 //使用select也可以   select直接定位标签  get。。。定位含有某个属性的标
                 Elements elements = document.getElementsByClass("cgtl");//现在用的这个比较方便
@@ -64,15 +65,22 @@ public class FetchDataIntoDifferentURL {
                 //继续获取想要的标签
                 Elements ele = contentEle.getElementsByClass("t_f");
                 //对获取的标签进行字符串解析
-                string = ele.toString();
+                string = ele.text();
                 if (string.contains("剧情简介")) {
                     string = string.replaceAll("<br />", "");
-                    System.out.println(string.substring(string.indexOf("剧情简介：") + 7, string.indexOf("转自")));
+                    if (string.contains("转自")) {
+                        System.out.println(string.substring(string.indexOf("剧情简介") + 6, string.indexOf("转自")));
+                    }
+                    else {
+                        string = string.replaceAll("·"," ");
+                        System.out.println(string);
+                    }
 //                System.exit(1);  //测试只执行一次
                 }
+                }catch (Exception e)  {
+                    e.printStackTrace();
+                    continue;
+                }
             }
-        }catch (Exception e)  {
-            e.printStackTrace();
-        }
     }
 }
