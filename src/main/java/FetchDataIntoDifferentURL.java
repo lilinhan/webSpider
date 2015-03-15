@@ -32,7 +32,7 @@ public class FetchDataIntoDifferentURL {
                         .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36")
                         .timeout(10000)
                         .get();
-                //使用select也可以   select直接定位标签  get。。。定位含有某个属性的标
+                //使用select也可以   select直接定位标签  get。。。定位含有某个属性的标签
                 Elements elements = document.getElementsByClass("cgtl");//现在用的这个比较方便
                 String string = elements.text();
                 //将字符串解析
@@ -45,16 +45,28 @@ public class FetchDataIntoDifferentURL {
                 movieStar = string.substring(string.indexOf("主 演: ")+5 , string.indexOf("豆瓣评分: ")-1);
                 movieScore = string.substring(string.indexOf("豆瓣评分: ")+6 , string.indexOf("[")-1);
                 ///将字符串打印出来后面写入不同的文件
-                System.out.println(movieName);
-                System.out.println(moviePicture);
-                System.out.println(movieClassification);
-                System.out.println(movieArea);
-                System.out.println(movieYear);
-                System.out.println(movieDirector);
-                System.out.println(movieStar);
-                System.out.println(movieScore);
+                System.out.println("电影名称:"+movieName);
+                System.out.println("画质: "+moviePicture);
+                System.out.println("分类: "+movieClassification);
+                System.out.println("地区: "+movieArea);
+                System.out.println("年份: "+movieYear);
+                System.out.println("导演/编剧: "+movieDirector);
+                System.out.println("主演: "+movieStar);
+                System.out.println("豆瓣评分: "+movieScore);
 //                System.out.println(string);   //测试的字符串
-                //有时候定位不好定位时候 可以先抓取大标签  然后删掉没用的标签
+                //抓取种子  因为下面要剪枝，刚好电影种子在剪去的枝里。所以这一步就要获取到种子
+                    Elements el = document.select("span[style=white-space: nowrap]");
+                    Element temp = el.first();
+                    Elements tempss = temp.select("a[href]");
+                    movieDownload = tempss.attr("abs:href");
+//                    System.out.println("电影种子地址:"+movieDownload);
+                //抓取电影海报  原因同上，因此这一步就要获取到图片地址
+                    el = document.select("img[style=cursor:pointer]");
+                    temp = el.first();
+                    movieJPG = temp.attr("abs:file");
+//                    System.out.println("电影海报地址:"+movieJPG);
+
+                    //有时候定位不好定位时候 可以先抓取大标签  然后删掉没用的标签
                 //remove方法删除了整个文档树中的指定标签
                 elements = document.select("div[class=t_fsz]");
                 //选取第一个符合条件的标签
@@ -69,14 +81,17 @@ public class FetchDataIntoDifferentURL {
                 if (string.contains("剧情简介")) {
                     string = string.replaceAll("<br />", "");
                     if (string.contains("转自")) {
-                        System.out.println(string.substring(string.indexOf("剧情简介") + 6, string.indexOf("转自")));
+                        movieSummary = string.substring(string.indexOf("剧情简介") + 6, string.indexOf("转自"));
+                        System.out.println("简介: "+movieSummary);
                     }
                     else {
-                        string = string.replaceAll("·"," ");
-                        System.out.println(string);
+                        movieSummary = string.replaceAll("·"," ");
+                        System.out.println("简介: "+movieSummary);
                     }
 //                System.exit(1);  //测试只执行一次
                 }
+                    System.out.println("电影种子地址:"+movieDownload);
+                    System.out.println("电影海报地址:"+movieJPG+"\n\n");
                 }catch (Exception e)  {
                     e.printStackTrace();
                     continue;
