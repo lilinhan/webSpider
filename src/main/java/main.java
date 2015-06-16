@@ -13,14 +13,17 @@ import java.util.*;
 public class main {
     public static void main(String[] args) throws IOException {
         //获取天堂BBS的HTML文档
-        Document document = Jsoup.connect("http://www.tiantangbbs.com/")
+        Document document = Jsoup.connect("http://www.xunleigang.com/")
                 .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36")
                 .timeout(10000) //避免网不好出现的超时问题
                 .get();
         while (detectNext(document) == true) {
             //获取天堂BBS上面的电影URL
             Elements elements = document.select("a");
+            //获取电影海报的链接集合
+            Elements elements1 = document.select("img");
             List urlList = new ArrayList();
+            List jpgList = new ArrayList();
             for (Element element : elements) {
                 //抓取到URL
                 String movieURL = element.attr("abs:href");
@@ -28,6 +31,13 @@ public class main {
                 if (movieURL.contains("thread") && movieURL.contains("html") && !movieURL.contains("83494")) {
                     //将抓取到的URL添加到List中
                     urlList.add(movieURL);
+                }
+            }
+
+            for (Element element : elements1) {
+                String movieJPG = element.attr("abs:src");
+                if (movieJPG.contains(".jpg"))  {
+                    jpgList.add(movieJPG);
                 }
             }
             //将List中重复的URL去除
@@ -41,7 +51,7 @@ public class main {
 
             //进入list中的每一个URL进行抓取
             FetchDataIntoDifferentURL fetchDataIntoDifferentURL = new FetchDataIntoDifferentURL();
-            fetchDataIntoDifferentURL.FetchDataIntoDifferentURL(urlList);
+            fetchDataIntoDifferentURL.FetchDataIntoDifferentURL(urlList , jpgList);
             //获取下一页的网址
             Elements tem = document.getElementsByClass("nxt");
             String movieURLs = tem.attr("abs:href");
@@ -76,5 +86,4 @@ public class main {
             return false;
         }
     }
-
 }
